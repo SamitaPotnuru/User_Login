@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication - Login & Signup</title>
+  <meta name="description" content="Secure authentication portal with login, signup, and password reset.">
+  <link rel="icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --fg: #0f172a;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --input: #e2e8f0;
+      --muted: #64748b;
+      --primary: #3b82f6;
+      --primary-fg: #ffffff;
+      --accent: #f1f5f9;
+      --ring: #3b82f6;
+      --radius: 8px;
+      --font-display: 'Inter', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      font-family: var(--font-body);
+      color: var(--fg);
+      padding: 1rem;
+    }
+
+    .container { width: 100%; max-width: 420px; }
+
+    .header { text-align: center; margin-bottom: 2rem; }
+    .logo { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 1.25rem; }
+    .title { font-size: 1.5rem; font-weight: 700; font-family: var(--font-display); letter-spacing: -0.025em; margin: 0 0 0.25rem; }
+    .subtitle { font-size: 0.875rem; color: var(--muted); margin: 0; }
+
+    .card { border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; background: var(--card); box-shadow: 0 1px 3px rgb(0 0 0 / 0.05); }
+
+    /* Social Button */
+    .social-btn {
+      width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      border: 1px solid var(--border); border-radius: var(--radius); background: transparent;
+      font-size: 0.875rem; font-weight: 500; color: var(--fg); cursor: pointer; transition: background 0.15s; font-family: var(--font-body);
+    }
+    .social-btn:hover { background: var(--accent); }
+    .social-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Divider */
+    .divider { position: relative; margin: 1.5rem 0; text-align: center; }
+    .divider::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--border); }
+    .divider span { position: relative; background: var(--card); padding: 0 0.75rem; font-size: 0.75rem; color: var(--muted); }
+
+    /* Form */
+    .form { display: flex; flex-direction: column; gap: 1rem; }
+    .field { display: flex; flex-direction: column; gap: 0.375rem; }
+    .label { font-size: 0.8125rem; font-weight: 500; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    .input-wrap { position: relative; }
+    .input-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; width: 16px; height: 16px; }
+    .prefix { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.875rem; pointer-events: none; }
+
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%; height: 44px; padding: 0 0.75rem 0 2.5rem;
+      border: 1px solid var(--input); border-radius: var(--radius); background: var(--bg);
+      font-size: 0.875rem; color: var(--fg); outline: none; transition: border-color 0.15s, box-shadow 0.15s; font-family: var(--font-body);
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus { border-color: var(--ring); box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+    .input-prefix { padding-left: 2rem; }
+    .input-toggle { padding-right: 2.5rem; }
+
+    .toggle-pw {
+      position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer; padding: 0; display: flex;
+    }
+    .toggle-pw:hover { color: var(--fg); }
+
+    .forgot-link { display: flex; justify-content: flex-end; }
+    .forgot-link button, .link-btn {
+      background: none; border: none; font-size: 0.8125rem; font-weight: 500;
+      color: var(--primary); cursor: pointer; padding: 0; font-family: var(--font-body);
+    }
+    .forgot-link button:hover, .link-btn:hover { text-decoration: underline; }
+
+    .submit-btn {
+      width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      border: none; border-radius: var(--radius); background: var(--primary); color: var(--primary-fg);
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s; font-family: var(--font-body);
+    }
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .back-btn {
+      width: 100%; background: none; border: none; font-size: 0.8125rem; color: var(--muted);
+      cursor: pointer; padding: 0.5rem; font-family: var(--font-body); transition: color 0.15s;
+    }
+    .back-btn:hover { color: var(--fg); }
+
+    .footer { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--muted); }
+    .footer button { background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; padding: 0; font-family: var(--font-body); }
+    .footer button:hover { text-decoration: underline; }
+
+    .hidden { display: none !important; }
+
+    /* SVG icons inline */
+    .icon { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.6s linear infinite; }
+
+    @media (max-width: 480px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="/favicon.ico" alt="Logo" class="logo" id="logo">
+      <h1 class="title" id="title">User Login</h1>
+      <p class="subtitle" id="subtitle">Welcome back! Please enter your details.</p>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+      <!-- Google (shown on login/signup) -->
+      <div id="social-section">
+        <button class="social-btn" id="google-btn" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+        <div class="divider"><span>or</span></div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form class="form" id="login-form">
+        <div class="field">
+          <label class="label">Email or Username</label>
+          <div class="input-wrap">
+            <svg class="input-icon icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input type="text" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Password</label>
+          <div class="input-wrap">
+            <svg class="input-icon icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" class="input-toggle" placeholder="••••••••" required minlength="6" id="login-pw">
+            <button type="button" class="toggle-pw" onclick="togglePw('login-pw',this)">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="forgot-link">
+          <button type="button" onclick="switchView('forgot')">Forgot password?</button>
+        </div>
+        <button class="submit-btn" type="submit">Sign In →</button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form class="form hidden" id="signup-form">
+        <div class="row">
+          <div class="field">
+            <label class="label">Full Name</label>
+            <div class="input-wrap">
+              <svg class="input-icon icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" placeholder="John Doe" required>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Username</label>
+            <div class="input-wrap">
+              <span class="prefix">@</span>
+              <input type="text" class="input-prefix" placeholder="johndoe" required>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Email</label>
+          <div class="input-wrap">
+            <svg class="input-icon icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input type="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Password</label>
+          <div class="input-wrap">
+            <svg class="input-icon icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" class="input-toggle" placeholder="••••••••" required minlength="6" id="signup-pw">
+            <button type="button" class="toggle-pw" onclick="togglePw('signup-pw',this)">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Confirm Password</label>
+          <div class="input-wrap">
+            <svg class="input-icon icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" class="input-toggle" placeholder="••••••••" required minlength="6" id="signup-cpw">
+            <button type="button" class="toggle-pw" onclick="togglePw('signup-cpw',this)">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="submit-btn" type="submit">Create Account →</button>
+      </form>
+
+      <!-- FORGOT FORM -->
+      <form class="form hidden" id="forgot-form">
+        <div class="field">
+          <label class="label">Email address</label>
+          <div class="input-wrap">
+            <svg class="input-icon icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input type="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <button class="submit-btn" type="submit">Send Reset Link →</button>
+        <button type="button" class="back-btn" onclick="switchView('login')">← Back to sign in</button>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" id="footer">
+      Don't have an account? <button type="button" onclick="switchView('signup')">Sign up</button>
+    </div>
+  </div>
+
+  <script>
+    const views = { login: 'login-form', signup: 'signup-form', forgot: 'forgot-form' };
+    const titles = { login: 'User Login', signup: 'Create Account', forgot: 'Reset Password' };
+    const subtitles = { login: 'Welcome back! Please enter your details.', signup: 'Start your journey with us today.', forgot: "We'll send you a reset link." };
+
+    function switchView(view) {
+      Object.values(views).forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(views[view]).classList.remove('hidden');
+      document.getElementById('title').textContent = titles[view];
+      document.getElementById('subtitle').textContent = subtitles[view];
+
+      const social = document.getElementById('social-section');
+      const footer = document.getElementById('footer');
+
+      if (view === 'forgot') {
+        social.classList.add('hidden');
+        footer.classList.add('hidden');
+      } else {
+        social.classList.remove('hidden');
+        footer.classList.remove('hidden');
+        footer.innerHTML = view === 'login'
+          ? 'Don\'t have an account? <button type="button" onclick="switchView(\'signup\')">Sign up</button>'
+          : 'Already have an account? <button type="button" onclick="switchView(\'login\')">Sign in</button>';
+      }
+    }
+
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.innerHTML = isPw
+        ? '<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    }
+
+    // Form submissions (placeholder - wire to your backend)
+    document.getElementById('login-form').addEventListener('submit', e => { e.preventDefault(); alert('Login submitted!'); });
+    document.getElementById('signup-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const pw = document.getElementById('signup-pw').value;
+      const cpw = document.getElementById('signup-cpw').value;
+      if (pw !== cpw) { alert('Passwords do not match!'); return; }
+      alert('Signup submitted!');
+    });
+    document.getElementById('forgot-form').addEventListener('submit', e => { e.preventDefault(); alert('Reset link sent!'); });
+    document.getElementById('google-btn').addEventListener('click', () => { alert('Google sign-in clicked!'); });
+  </script>
+</body>
+</html>
